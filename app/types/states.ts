@@ -1,4 +1,29 @@
-import { Address, Donation, Donor } from "@prisma/client";
+type DemoAddress = {
+  addressLine1: string;
+  addressLine2?: string | null;
+  city: string;
+  state: string;
+  zipCode: string;
+  type?: string;
+};
+
+type DemoDonation = {
+  id: string;
+  type: string;
+  amount: number;
+  item?: string | null;
+  paymentMethod?: string | null;
+  date: Date;
+};
+
+type DemoDonor = {
+  id: string;
+  type: string;
+  communicationPreference?: string;
+  status?: string;
+  notes?: string;
+  isRetained?: boolean;
+};
 
 export type DonorState = {
   type: string;
@@ -48,9 +73,9 @@ export type DonationState = {
 };
 
 export type DonationResponse = {
-  data: Donation & {
-    donor: {
-      person: {
+  data: DemoDonation & {
+    donor?: {
+      person?: {
         firstName: string;
         lastName: string;
       };
@@ -59,26 +84,19 @@ export type DonationResponse = {
 };
 
 export type DonorResponse = {
-  data: Donor & {
-    person: {
+  data: DemoDonor & {
+    person?: {
       firstName: string;
       lastName: string;
       emailAddress: string;
       phoneNumber?: string | null;
-      address?: Address | null;
+      address?: DemoAddress | null;
     };
-    donation: {
-      id: string;
-      type: string;
-      amount: number;
-      item?: string | null;
-      paymentMethod?: string | null;
-      date: Date;
-    }[];
-    organization: {
+    donation?: DemoDonation[];
+    organization?: {
       name: string;
       emailAddress: string;
-      address?: Address | null;
+      address?: DemoAddress | null;
     };
   };
 };
@@ -95,20 +113,14 @@ export type DonationTableState = {
 ////////
 
 export type donorResponse = {
-  data: Donor & {
-    person: {
+  data: DemoDonor & {
+    person?: {
       firstName: string;
       lastName: string;
       phoneNumber: string;
       emailAddress: string;
-      address: Address;
+      address: DemoAddress;
     };
-    donation: {
-      id: string;
-      type: string;
-      amount: number;
-      item: string;
-      paymentMethod: string;
-    };
+    donation?: DemoDonation;
   };
 };

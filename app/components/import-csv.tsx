@@ -52,24 +52,7 @@ export const Import = () => {
 
     if (!file) return;
 
-    try {
-      const formData = new FormData();
-      formData.append("csv", file);
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/csv`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-    } catch (error) {
-      alert(error);
-      console.error(error);
-    }
+    alert("Disabled in demo mode. No files are uploaded.");
   };
 
   return (
@@ -79,9 +62,7 @@ export const Import = () => {
           type="file"
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => setFile(event.target.files?.[0] || null)}
           variant="outlined"
-          slotProps={{
-            htmlInput: { accept: ".csv" },
-          }}
+          inputProps={{ accept: ".csv" }}
         />
         <Button type="submit" onSubmit={handleSubmitFile}>
           Upload

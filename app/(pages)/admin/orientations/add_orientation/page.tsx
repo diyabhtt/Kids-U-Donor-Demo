@@ -1,8 +1,9 @@
 'use client'
 import { useState, useEffect } from 'react'
+import { demoLocations } from '@/app/demo/demoData'
 
 export default function AddOrientation() {
-  const [locations, setLocations] = useState([])
+  const [locations, setLocations] = useState<{ id: string; name: string }[]>([])
   const [form, setForm] = useState({
     name: '',
     description: '',
@@ -12,9 +13,7 @@ export default function AddOrientation() {
   })
 
   useEffect(() => {
-    fetch('/api/locations/get')
-      .then((res) => res.json())
-      .then((data) => setLocations(data))
+    setLocations(demoLocations)
   }, [])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -23,19 +22,8 @@ export default function AddOrientation() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    const res = await fetch('/api/orientations/post', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
-    })
-
-    if (res.ok) {
-      alert('Orientation created!')
-      setForm({ name: '', description: '', schedule: '', capacity: '', locationId: '' })
-    } else {
-      alert('Failed to create orientation')
-    }
+    alert('Demo only. Orientation is not saved.')
+    setForm({ name: '', description: '', schedule: '', capacity: '', locationId: '' })
   }
 
   return (

@@ -11,53 +11,26 @@ const RegistrationQuestions: React.FC<RegistrationQuestionsProps> = ({ eventId, 
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     setError("");
 
-    const formData = new FormData(event.currentTarget);
-    const data = {
-      eventId: eventId,
-      eventGroup: "individual",
-      date: new Date(),
-      referrelSource: formData.get("referrelSource") || "",
-      reasonForVolunteering: formData.get("reasonForVolunteering") || "",
-      eSignature: formData.get("eSignature") || "",
-      volunteerId: volunteerId,
-    };
+    new FormData(event.currentTarget);
 
-    try {
-      const response = await fetch("/api/event-registration/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to register for event");
-        console.error("Error:", response.statusText);
-        console.error(data);
-      }
-
-      // Registration successful
+    setSuccess("Registration submitted for demo. No data was saved.");
+    setTimeout(() => {
       router.push("/volunteers/registration?success=true");
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("An unknown error occurred");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
+    }, 800);
+    setIsSubmitting(false);
   };
 
   const Form = () => (
     <div className="space-y-6">
+      {success && <p className="text-green-600 text-sm">{success}</p>}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
       <form className="space-y-4" onSubmit={handleSubmit}>
         <div className="w-full border-t-4 border-[#1F2839] my-4"></div>
         <h2 className="font-bold text-xl">Event Form</h2>

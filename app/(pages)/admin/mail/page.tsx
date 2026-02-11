@@ -98,53 +98,8 @@ export default function EmailPage() {
     }
 
     setLoading(true);
-    setStatus({ type: '', message: '' });
-
-    try {
-      console.log('Sending email with data:', {
-        recipientType,
-        to: recipientType === 'individual' ? recipient : null,
-        subject,
-        body
-      });
-
-      const response = await fetch('/api/send-mail/post', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          recipientType: recipientType,
-          to: recipientType === 'individual' ? recipient : null,
-          subject: subject,
-          body: body,
-        }),
-      });
-
-      console.log('Response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Response data:', data);
-
-      if (response.ok) {
-        const message = recipientType === 'individual' 
-          ? 'Email sent successfully!' 
-          : `Email sent successfully to ${data.count || 'all'} ${recipientType === 'volunteers' ? 'volunteers' : 'admins'}!`;
-        setStatus({ type: 'success', message });
-        setRecipient('');
-        setSubject('');
-        setBody('');
-        setSelectedTemplate('custom');
-      } else {
-        setStatus({ type: 'error', message: data.error || 'Failed to send email' });
-      }
-    } catch (error) {
-      console.error('Caught error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      setStatus({ type: 'error', message: `An error occurred: ${errorMessage}` });
-    } finally {
-      setLoading(false);
-    }
+    setStatus({ type: 'error', message: 'Disabled in demo mode. Emails are not sent.' });
+    setTimeout(() => setLoading(false), 500);
   };
 
   return (
@@ -295,6 +250,7 @@ export default function EmailPage() {
             <button
               onClick={handleSendEmail}
               disabled={loading}
+              title="Disabled in demo mode"
               className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold py-3 px-6 rounded-lg flex items-center justify-center gap-2 transition duration-200 shadow-md hover:shadow-lg"
             >
               {loading ? (

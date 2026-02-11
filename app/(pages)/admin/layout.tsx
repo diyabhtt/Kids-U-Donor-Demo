@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           }
         ]}
       />
-      <main className="ml-64 mt-16 min-h-screen">
+      <main className="ml-64 mt-16 min-h-screen pt-10">
         {children}
       </main>
     </div>

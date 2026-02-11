@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { Grantor } from "@/prisma"
+import React, { useState, useEffect, useCallback } from "react";
+import { demoGrantors } from "@/app/demo/demoData";
 import {
   Box,
   TextField,
@@ -50,7 +50,7 @@ const searchOptions = [
 ];
 
 export default function GrantorsPage() {
-  const [grantorsData, setGrantorsData] = useState<Grantor[]>([]);
+  const [grantorsData, setGrantorsData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -59,20 +59,35 @@ export default function GrantorsPage() {
   const [searchValue, setSearchValue] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("");
 
-  const fetchGrantsData = async () => {
-    try {
-
-      const response = await fetch(`/api/admin/grantors?page=${page}&rowsPerPage=${rowsPerPage}&searchCriteria=${searchCriteria}&searchValue=${searchValue}`);
-
-      const result = await response.json();
-      setGrantorsData(result.data);
-      setTotalCount(result.count);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching grantors:", error);
-      setLoading(false);
-    }
-  };
+  const fetchGrantsData = useCallback(async () => {
+    const mapped = demoGrantors.map((grantor) => ({
+      id: grantor.id,
+      organization: {
+        name: grantor.name,
+        address: {
+          addressLine1: "100 Main St",
+          addressLine2: "",
+          city: "Dallas",
+          state: "TX",
+          zipCode: "75201",
+        },
+      },
+      type: "Foundation",
+      communicationPreference: "Email",
+      recognitionPreference: "Public",
+    }));
+    const filtered = mapped.filter((grantor) => {
+      if (!searchCriteria || !searchValue) return true;
+      const value = searchValue.toLowerCase();
+      const field = (grantor as any)[searchCriteria] || (grantor.organization?.name ?? "");
+      return String(field).toLowerCase().includes(value);
+    });
+    setTotalCount(filtered.length);
+    const start = page * rowsPerPage;
+    const end = rowsPerPage === -1 ? filtered.length : start + rowsPerPage;
+    setGrantorsData(filtered.slice(start, end));
+    setLoading(false);
+  }, [page, rowsPerPage, searchCriteria, searchValue]);
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
@@ -124,7 +139,7 @@ export default function GrantorsPage() {
 
   useEffect(() => {
     fetchGrantsData();
-  }, [page, rowsPerPage, searchValue, searchCriteria]);
+  }, [fetchGrantsData]);
 
   if (loading) {
     return <CircularProgress style={styles.center} />
@@ -210,16 +225,6 @@ export default function GrantorsPage() {
                   {selectedColumns.includes("name") && <TableCell style={styles.tableCell}><Link href={`/admin/grants/grantor/detail/${grantor.id}`}>{grantor.organization.name}</Link></TableCell>}
                   {selectedColumns.includes("type") && <TableCell style={styles.tableCell}>{grantor.type}</TableCell>}
                   {selectedColumns.includes("addressLine1") && (
-  <TableCell style={styles.tableCell}>
-    {grantor.organization.address?.addressLine1 || "N/A"}
-  </TableCell>
-)}
-{selectedColumns.includes("addressLine2") && (
-  <TableCell style={styles.tableCell}>
-    {grantor.organization.address?.addressLine2 || "N/A"}
-  </TableCell>
-)}
-{selectedColumns.includes("addressLine1") && (
   <TableCell style={styles.tableCell}>
     {grantor.organization.address?.addressLine1 || "N/A"}
   </TableCell>

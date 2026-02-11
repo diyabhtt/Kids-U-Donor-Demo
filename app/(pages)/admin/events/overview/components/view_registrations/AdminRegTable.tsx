@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { format } from "date-fns";
+import { demoEvents, demoLocations, demoRegistrations, demoVolunteers } from "@/app/demo/demoData";
 
 interface Volunteer {
   id: string;
@@ -46,18 +47,46 @@ export const AdminRegTable = () => {
   }, []);
 
   const fetchEvents = async () => {
-    try {
-      const response = await fetch('/api/events/get');
-      if (!response.ok) {
-        throw new Error('Failed to fetch events');
-      }
-      const data = await response.json();
-      setEvents(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error fetching events');
-    } finally {
-      setLoading(false);
-    }
+    const mappedEvents: Event[] = demoEvents.map((event) => {
+      const location = demoLocations.find((loc) => loc.id === event.locationId);
+      const registrations = demoRegistrations
+        .filter((reg) => reg.eventId === event.id)
+        .map((reg) => {
+          const volunteer = demoVolunteers.find((v) => v.id === reg.volunteerId);
+          return {
+            id: reg.id,
+            eventGroup: "individual",
+            date: new Date(),
+            referrelSource: "Community",
+            reasonForVolunteering: "Give back",
+            volunteer: {
+              id: volunteer?.id || "v0",
+              firstName: volunteer?.firstName || "Volunteer",
+              lastName: volunteer?.lastName || "Demo",
+              emailAddress: volunteer?.email || "volunteer@demo.org",
+              phoneNumber: volunteer?.phone || "",
+            },
+          };
+        });
+      return {
+        id: event.id,
+        name: event.name,
+        schedule: new Date(event.schedule),
+        description: event.description,
+        locationId: event.locationId,
+        location: location
+          ? {
+              name: location.name,
+              address: location.address,
+              city: location.city,
+              state: location.state,
+            }
+          : undefined,
+        eventRegistrations: registrations,
+      };
+    });
+    setEvents(mappedEvents);
+    setLoading(false);
   };
 
   const handleRowClick = (eventId: string) => {
@@ -89,7 +118,7 @@ export const AdminRegTable = () => {
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold">Events and Registrations</h2>
         <Link
-          href="/volunteers/Registration/add-event"
+          href="/admin/events/add-event"
           className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
           Add New Event

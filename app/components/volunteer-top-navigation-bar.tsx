@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation'; 
 import Image from 'next/image';
 import logo from '/app/logo.png';
+import { clearDemoRole } from '../demo/demoAuth';
+import { demoVolunteers } from '../demo/demoData';
 
 export default function VolunteerTopNavigationBar() {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,38 +17,17 @@ export default function VolunteerTopNavigationBar() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/auth/me'); 
-        const data = await response.json();
-        if (data.success) {
-          setUser({
-            name: `${data.user.firstName} ${data.user.lastName}`,
-            email: data.user.email,
-            role: 'Volunteer',
-            initials: `${data.user.firstName[0]}${data.user.lastName[0]}`
-          });
-        }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-      }
-    };
-
-    fetchUserData();
+    const volunteer = demoVolunteers[0];
+    setUser({
+      name: `${volunteer.firstName} ${volunteer.lastName}`,
+      email: volunteer.email,
+      role: 'Volunteer',
+      initials: `${volunteer.firstName[0]}${volunteer.lastName[0]}`
+    });
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      await fetch('/api/auth/logout', { method: 'POST' });
-    } catch (e) {
-      // ignore network errors
-    }
-    try {
-      if (typeof window !== 'undefined') {
-        sessionStorage.clear();
-        localStorage.clear();
-      }
-    } catch { }
+  const handleLogout = () => {
+    clearDemoRole();
     setMenuOpen(false);
     router.push('/');
     router.refresh();
@@ -58,7 +39,7 @@ export default function VolunteerTopNavigationBar() {
   };
   
   return (
-    <nav className="bg-white border-b border-gray-200 shadow-sm fixed top-0 left-0 right-0 z-50">
+    <nav className="bg-white border-b border-gray-200 shadow-sm fixed top-10 left-0 right-0 z-50">
       <div className="w-full px-6">
         <div className="flex justify-between items-center h-16">
           

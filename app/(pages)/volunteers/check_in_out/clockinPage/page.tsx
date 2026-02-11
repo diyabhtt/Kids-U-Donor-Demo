@@ -1,7 +1,7 @@
 "use client"; 
 
 import { useState, useEffect } from "react";
-interface volunteer {}
+import { demoEvents, demoLocations } from "@/app/demo/demoData";
 
 const Breadcrumb = () => (
   <div className="mb-5 text-sm text-gray-600 flex items-center space-x-2">
@@ -19,7 +19,6 @@ export default function Checkinout() {
   const [visible, setVisible] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [currentEvent, setCurrentEvent] = useState<any>(null);
-  const volunteerId = "8bf18571-0f32-4a6a-a71b-e267e650dcc2"; // Hardcoded volunteer ID add your own ID
 
   // Manual entry state for Column 2
   const [manualCheckInDate, setManualCheckInDate] = useState<string>("");
@@ -34,36 +33,16 @@ export default function Checkinout() {
     else console.log(msg);
   };
 
-  const calculateHoursWorked = (checkIn: Date, checkOut: Date) => {
-    const timeDiff = checkOut.getTime() - checkIn.getTime();
-    const hours = Math.floor(timeDiff / (1000 * 60 * 60));
-    const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
-    return {
-      hoursWorked: hours,
-      displayHours: hours,
-      displayMinutes: minutes,
-    };
-  };
-
-  // Fetch current event on component mount
+  // Demo: pick first upcoming event
   useEffect(() => {
-    const fetchCurrentEvent = async () => {
-      try {
-        const response = await fetch('/api/events/get');
-        if (response.ok) {
-          const events = await response.json();
-          // Get the most recent event (assuming events are ordered by schedule desc)
-          const latestEvent = events[0];
-          if (latestEvent) {
-            setCurrentEvent(latestEvent);
-          }
-        }
-      } catch (error) {
-        showMessage("Failed to fetch current event", true);
-      }
-    };
-
-    fetchCurrentEvent();
+    const event = demoEvents[0];
+    if (event) {
+      const location = demoLocations.find((loc) => loc.id === event.locationId);
+      setCurrentEvent({
+        ...event,
+        locationName: location ? `${location.name}, ${location.city}` : "TBD",
+      });
+    }
   }, []);
 
   // Handle automatic Check-In
@@ -74,7 +53,7 @@ export default function Checkinout() {
     showMessage(checkInMessage);
   };
 
-  // Handle automatic Check-Out
+  // Handle automatic Check-Out (UI only)
   const handleCheckOut = async () => {
     if (isSubmitting || !checkInTime) {
       showMessage("Please check in first.", true);
@@ -88,37 +67,13 @@ export default function Checkinout() {
 
     setIsSubmitting(true);
     const now = new Date();
-    const { hoursWorked, displayHours, displayMinutes } = calculateHoursWorked(checkInTime, now);
-
-    try {
-      const response = await fetch('/api/volunteer/attendance/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hoursWorked,
-          checkInTime: checkInTime.toISOString(),
-          checkOutTime: now.toISOString(),
-          eventId: currentEvent.id,
-          volunteerId
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        showMessage(`API Error: ${errorData.details || errorData.error}`, true);
-      } else {
-        const successData = await response.json();
-        showMessage(`Check-Out Time: ${now.toLocaleTimeString()}\nHours Volunteered: ${displayHours} hours and ${displayMinutes} minutes`);
-        setCheckInTime(null);
-      }
-    } catch (err) {
-      showMessage(`Fetch Error: ${err}`, true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    showMessage(`Check-Out Time: ${now.toLocaleTimeString()}
+Session summary shown for demo only.`);
+    setCheckInTime(null);
+    setIsSubmitting(false);
   };
 
-  // Handle manual hours calculation
+  // Handle manual hours calculation (UI only)
   const handleManualHours = async () => {
     if (isSubmitting) return;
 
@@ -146,33 +101,8 @@ export default function Checkinout() {
     }
 
     setIsSubmitting(true);
-    const { hoursWorked, displayHours, displayMinutes } = calculateHoursWorked(checkIn, checkOut);
-
-    try {
-      const response = await fetch('/api/volunteer/attendance/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          hoursWorked,
-          checkInTime: checkIn.toISOString(),
-          checkOutTime: checkOut.toISOString(),
-          eventId: currentEvent.id,
-          volunteerId
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        showMessage(`API Error: ${errorData.details || errorData.error}`, true);
-      } else {
-        const successData = await response.json();
-        showMessage(`Hours Volunteered: ${displayHours} hours and ${displayMinutes} minutes`);
-      }
-    } catch (err) {
-      showMessage(`Fetch Error: ${err}`, true);
-    } finally {
-      setIsSubmitting(false);
-    }
+    showMessage("Manual session summary shown for demo only.");
+    setIsSubmitting(false);
   };
 
   // Effect to handle fade-out after 10 seconds
@@ -192,6 +122,11 @@ export default function Checkinout() {
       <h2 className="underline text-center mb-4 text-5xl font-semibold text-gray-700">
         Check-In / Check-Out
       </h2>
+      {currentEvent && (
+        <p className="text-center text-sm text-gray-500 mb-6">
+          Current event: {currentEvent.name} • {currentEvent.locationName}
+        </p>
+      )}
 
       <div className="flex items-start justify-center space-x-12 mt-10">
         {/* Column 1: Automatic Check-In/Check-Out */}
@@ -199,13 +134,17 @@ export default function Checkinout() {
           <h1 className="text-2xl font-semibold text-gray-800">Button Entry</h1>
           <button
             onClick={handleCheckIn}
-            className="bg-blue-500 text-white rounded-sm p-2 w-60"
+            disabled
+            title="Disabled in demo mode"
+            className="bg-blue-500/70 text-white rounded-sm p-2 w-60 cursor-not-allowed"
           >
             Check-In
           </button>
           <button
             onClick={handleCheckOut}
-            className="bg-blue-500 text-white rounded-sm p-2 w-60"
+            disabled
+            title="Disabled in demo mode"
+            className="bg-blue-500/70 text-white rounded-sm p-2 w-60 cursor-not-allowed"
           >
             Check-Out
           </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { demoVolunteerApplications } from '@/app/demo/demoData';
 
 type ApplicationSummary = {
   id: string;
@@ -18,47 +19,27 @@ export default function ApplicationsPage() {
   const [applications, setApplications] = useState<ApplicationSummary[]>([]);
 
   useEffect(() => {
-    fetch('/api/admin/volunteer/application/get')
-      .then(res => res.json())
-      .then(data => setApplications(data));
+    const apps = demoVolunteerApplications.map((app) => ({
+      id: app.id,
+      createdAt: new Date().toISOString(),
+      legalName: app.legalName,
+      preferredName: app.preferredName || null,
+      email: app.email,
+      phoneNumber: app.phoneNumber,
+      educationLevel: app.educationLevel,
+      accepted: app.accepted,
+    }));
+    setApplications(apps);
   }, []);
 
   const toggleAccepted = async (id: string, accepted: boolean) => {
-    try {
-      const res = await fetch(`/api/admin/volunteer/application/${id}/patch`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: { accepted: true } }), // match your backend
-      });
-
-      if (res.ok) {
-        setApplications(apps =>
-          apps.map(app => (app.id === id ? { ...app, accepted: true } : app))
-        );
-      } else {
-        console.error('Failed to update accepted status');
-      }
-    } catch (error) {
-      console.error('Error updating accepted status:', error);
-    }
+    setApplications(apps =>
+      apps.map(app => (app.id === id ? { ...app, accepted: !accepted } : app))
+    );
   };
 
   const rejectApplication = async (id: string) => {
-    if (!confirm('Are you sure you want to reject (delete) this application?')) return;
-
-    try {
-      const res = await fetch(`/api/admin/volunteer/application/${id}/delete`, {
-        method: 'DELETE',
-      });
-
-      if (res.ok) {
-        setApplications(apps => apps.filter(app => app.id !== id));
-      } else {
-        console.error('Failed to delete application');
-      }
-    } catch (error) {
-      console.error('Error deleting application:', error);
-    }
+    // Disabled in demo mode
   };
 
   return (
@@ -94,13 +75,15 @@ export default function ApplicationsPage() {
                 </Link>
                 <button
                   onClick={() => toggleAccepted(app.id, app.accepted)}
+                  title="Demo only. Changes are not saved."
                   className="text-white bg-green-600 hover:bg-green-700 px-2 py-1 rounded"
                 >
                   {app.accepted ? 'Unaccept' : 'Accept'}
                 </button>
                 <button
-                  onClick={() => rejectApplication(app.id)}
-                  className="text-white bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+                  disabled
+                  title="Disabled in demo mode"
+                  className="text-white bg-red-600/70 px-2 py-1 rounded cursor-not-allowed"
                 >
                   Reject
                 </button>

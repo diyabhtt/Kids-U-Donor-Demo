@@ -8,6 +8,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { demoEvents, demoLocations } from "@/app/demo/demoData";
 
 interface Event {
   id: string;
@@ -30,16 +31,26 @@ export const VolRegTable = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/events/get")
-      .then((res) => res.json())
-      .then((data) => {
-        setEvents(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    const eventsWithLocations: Event[] = demoEvents.map((event) => {
+      const location = demoLocations.find((loc) => loc.id === event.locationId) || null;
+      return {
+        id: event.id,
+        name: event.name,
+        schedule: event.schedule,
+        description: event.description,
+        location: location
+          ? {
+              name: location.name,
+              address: location.address,
+              city: location.city,
+              state: location.state,
+              zipCode: location.zipCode,
+            }
+          : null,
+      };
+    });
+    setEvents(eventsWithLocations);
+    setLoading(false);
   }, []);
 
 
@@ -113,6 +124,7 @@ export const VolRegTable = () => {
                 <TableCell align="right">
                   <button
                     onClick={() => handleViewEvent(event.id)}
+                    title="Demo only. Registration is not saved."
                     className="bg-[#0d1a2d] text-white px-4 py-2 rounded-lg"
                   >
                     Register

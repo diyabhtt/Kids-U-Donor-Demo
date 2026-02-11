@@ -57,64 +57,19 @@ const VolunteerApplication = () => {
         parentSignatureDate: ''
     });
 
-    const handleChange = (e) => {
-        const { name, value, type, checked } = e.target;
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const target = e.target;
+        const isCheckbox = target instanceof HTMLInputElement && target.type === 'checkbox';
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value
+            [target.name]: isCheckbox ? target.checked : target.value
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        try {
-            const payload = {
-                legalName: formData.legalName,
-                maidenName: formData.maidenName || null,
-                ssn: formData.ssn,
-                preferredName: formData.preferredName || null,
-                currentAddress: formData.currentAddress,
-                phoneNumber: formData.phone,
-                email: formData.email,
-                usCitizen: formData.isCitizen === 'yes',
-                driversLicense: formData.hasDriverLicense === 'yes',
-                ownCar: formData.drivesOwnVehicle === 'yes',
-                speakSpanish: formData.languages === 'yes',
-                otherLanguages: formData.otherLanguages || null,
-                heardAbout: formData.heardAboutPosition || null,
-                emergencyContactName: formData.emergencyContactName,
-                emergencyContactPhone: formData.emergencyContactPhone,
-                professionalRefName: formData.professionalReferenceName,
-                professionalRefPhone: formData.professionalReferencePhone,
-                personalRefName: formData.personalReferenceName,
-                personalRefPhone: formData.personalReferencePhone,
-                educationLevel: formData.highestEducation,
-                highSchoolName: formData.highSchoolName || null,
-                collegeName: formData.collegeName || null,
-                degreeObtained: formData.collegeDegree || null,
-                additionalInfo1: null, // or use formData fields if you have more
-                additionalInfo2: null,
-                arrestedOrConvicted: formData.hasCriminalRecord === 'yes',
-                convictionExplanation: formData.criminalRecordExplanation || null,
-                agreedToTerms: formData.agreeToBackgroundCheck,
-                eSignature: formData.electronicSignature
-            };
-    
-            const response = await fetch('/api/volunteer/application/post', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
-            });
-    
-            if (response.ok) {
-                alert('Application submitted successfully!');
-            } else {
-                throw new Error('Submission failed');
-            }
-        } catch (error) {
-            console.error('Error submitting form:', error);
-            alert('There was an error submitting your application.');
-        }
+        alert('Demo only. Application is not submitted.');
+        setStep('form');
     };
     
 
@@ -260,7 +215,7 @@ const VolunteerApplication = () => {
                             </div>
 
                             <div className="flex items-center">
-                                <label className="mr-4">Do you have a driver's license?</label>
+                                <label className="mr-4">Do you have a driver&apos;s license?</label>
                                 <label className="mr-4">
                                     <input
                                         type="radio"
@@ -464,8 +419,8 @@ const VolunteerApplication = () => {
                                     <option value="high_school">High School</option>
                                     <option value="some_college">Some College</option>
                                     <option value="associate">Associate Degree</option>
-                                    <option value="bachelor">Bachelor's Degree</option>
-                                    <option value="master">Master's Degree</option>
+                                    <option value="bachelor">Bachelor&apos;s Degree</option>
+                                    <option value="master">Master&apos;s Degree</option>
                                     <option value="doctorate">Doctorate</option>
                                 </select>
                             </div>
@@ -588,7 +543,7 @@ const VolunteerApplication = () => {
                             </div>
 
                             <div>
-                                <label className="block mb-2">Driver's License Number</label>
+                                <label className="block mb-2">Driver&apos;s License Number</label>
                                 <input
                                     type="text"
                                     name="driversLicenseNumber"
@@ -792,7 +747,7 @@ const VolunteerApplication = () => {
                                     <p>{formData.isCitizen === 'yes' ? 'Yes' : 'No'}</p>
                                 </div>
                                 <div>
-                                    <p className="font-medium">Has Driver's License:</p>
+                                    <p className="font-medium">Has Driver&apos;s License:</p>
                                     <p>{formData.hasDriverLicense === 'yes' ? 'Yes' : 'No'}</p>
                                 </div>
                                 <div>
@@ -891,7 +846,7 @@ const VolunteerApplication = () => {
                                     <p>{formData.dob}</p>
                                 </div>
                                 <div>
-                                    <p className="font-medium">Driver's License Number:</p>
+                                    <p className="font-medium">Driver&apos;s License Number:</p>
                                     <p>{formData.driversLicenseNumber || 'N/A'}</p>
                                 </div>
                                 <div>

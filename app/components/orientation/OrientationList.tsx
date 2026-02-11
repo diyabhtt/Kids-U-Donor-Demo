@@ -10,6 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { demoOrientations, demoLocations } from "@/app/demo/demoData";
 
 interface OrientationItem {
   id: number;
@@ -47,16 +48,25 @@ export default function OrientationList() {
   };
 
   useEffect(() => {
-    fetch("/api/orientations/get")
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    const itemsData: OrientationItem[] = demoOrientations.map((orientation, index) => {
+      const location = demoLocations.find((loc) => loc.id === orientation.locationId);
+      return {
+        id: index + 1,
+        name: orientation.title,
+        schedule: orientation.date,
+        description: "Volunteer onboarding session",
+        capacity: 25,
+        location: {
+          name: location?.name || "Kids-U Center",
+          address: location?.address,
+          city: location?.city,
+          state: location?.state,
+          zipCode: location?.zipCode,
+        },
+      };
+    });
+    setItems(itemsData);
+    setLoading(false);
   }, []);
 
   if (loading) return <p>Loading...</p>;

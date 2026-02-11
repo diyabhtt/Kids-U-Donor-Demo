@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation"; 
+import { demoAdmins, demoVolunteers } from "@/app/demo/demoData";
+import { getDemoRole } from "@/app/demo/demoAuth";
 
 export default function AccountSettings() {
   const [name, setName] = useState("");
@@ -17,25 +19,18 @@ export default function AccountSettings() {
   const router = useRouter(); 
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const response = await fetch('/api/auth/me');
-        const data = await response.json();
-        if (data.success) {
-          setName(`${data.user.firstName} ${data.user.lastName}`);
-          setEmail(data.user.email);
-          setPhone(data.user.phone || "");
-          setTwoFactorEnabled(data.user.twoFactorEnabled || false);
-          if (data.user.avatar) {
-            setAvatar(data.user.avatar);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch user data:', error);
-        setMessage({ type: "error", text: "Failed to load user data" });
-      }
-    };
-    fetchUserData();
+    const role = getDemoRole();
+    if (role === "admin") {
+      const admin = demoAdmins[0];
+      setName(admin.name);
+      setEmail(admin.email);
+      setPhone("(214) 555-0101");
+    } else {
+      const volunteer = demoVolunteers[0];
+      setName(`${volunteer.firstName} ${volunteer.lastName}`);
+      setEmail(volunteer.email);
+      setPhone(volunteer.phone);
+    }
   }, []);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,50 +47,12 @@ export default function AccountSettings() {
 
   const handleSaveChanges = async () => {
     setLoading(true);
-    setMessage({ type: "", text: "" });
-
-    try {
-      const response = await fetch('/api/user/update', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          avatar,
-          twoFactorEnabled
-        })
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setMessage({ type: "success", text: "Profile updated successfully!" });
-      } else {
-        setMessage({ type: "error", text: data.message || "Failed to update profile" });
-      }
-    } catch (error) {
-      console.error('Error updating profile:', error);
-      setMessage({ type: "error", text: "An error occurred. Please try again." });
-    } finally {
-      setLoading(false);
-    }
+    setMessage({ type: "error", text: "Disabled in demo mode. Changes are not saved." });
+    setTimeout(() => setLoading(false), 600);
   };
 
   const handle2FAToggle = async () => {
-    const newValue = !twoFactorEnabled;
-    setTwoFactorEnabled(newValue);
-    
-    try {
-      await fetch('/api/user/toggle-2fa', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled: newValue })
-      });
-    } catch (error) {
-      console.error('Failed to toggle 2FA:', error);
-      setTwoFactorEnabled(!newValue);
-    }
+    setMessage({ type: "error", text: "Two-factor changes are disabled in demo mode." });
   };
 
   return (

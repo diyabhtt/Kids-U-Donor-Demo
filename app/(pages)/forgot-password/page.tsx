@@ -16,35 +16,8 @@ export default function ForgotPasswordPage(): JSX.Element {
     setLoading(true);
     setError("");
     
-    try {
-      const response = await fetch('/api/auth/forgot-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 400) {
-          throw new Error(data.error || 'Please provide a valid email address.');
-        } else if (response.status === 500) {
-          throw new Error(data.error || 'Failed to send reset email. Please try again.');
-        } else {
-          throw new Error(data.error || 'Something went wrong. Please try again.');
-        }
-      }
-
-      setSubmitted(true);
-      
-    } catch (error) {
-      console.error("Error:", error);
-      setError(error instanceof Error ? error.message : 'Failed to send reset link. Please try again.');
-    } finally {
-      setLoading(false);
-    }
+    setSubmitted(true);
+    setLoading(false);
   };
 
   return (

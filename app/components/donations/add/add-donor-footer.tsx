@@ -38,29 +38,8 @@ export const AddDonorFooter = ({ handleSubmit, isDirty, errors }: FooterProps) =
       return;
     }
 
-    try {
-      setIsButtonDisabled(true);
-      const requestBody = JSON.stringify({ data });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/donors/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-      alert("Successfully added data.");
-      location.reload();
-    } catch (error) {
-      alert(error);
-      console.error(error);
-    }
+    setIsButtonDisabled(true);
+    alert("Demo only. Donor was not saved.");
   };
 
   const handleCancel = () => {

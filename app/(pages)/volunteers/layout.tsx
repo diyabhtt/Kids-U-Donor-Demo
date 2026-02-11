@@ -15,7 +15,7 @@ export default function VolunteerLayout({ children }: { children: React.ReactNod
             { name: "Apply", reference: "/volunteers/apply" },
           ]}
         />
-          <main className="ml-64 mt-16 min-h-screen flex-1">
+          <main className="ml-64 mt-16 min-h-screen flex-1 pt-10">
           {children}
         </main>
       </div>

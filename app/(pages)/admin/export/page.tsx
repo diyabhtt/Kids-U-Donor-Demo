@@ -35,73 +35,8 @@ export default function Export() {
    */
   const handleExport = async (dataType: string) => {
     setIsExporting(dataType);
-    setStatusMessage(`Requesting ${dataType} data export...`);
-
-    try {
-      // NOTE: API endpoint must be programmed to return a file, edit the endpoint here
-      // Use the admin API path
-      // donations export handler is used for donors export as well
-      const route = dataType === 'donors' ? 'donations' : dataType;
-      const baseUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/admin/${route}/export`;
-
-      // Append proposal due date range for grants
-      let apiUrl = baseUrl;
-      if (route === 'grants') {
-        const params = new URLSearchParams();
-        if (dueStart) params.set('dueStart', dueStart);
-        if (dueEnd) params.set('dueEnd', dueEnd);
-        if (grantFund) params.set('fund', grantFund);
-        if (grantMinAwarded) params.set('minAmount', grantMinAwarded);
-        if (grantMaxAwarded) params.set('maxAmount', grantMaxAwarded);
-        if (grantStatus) params.set('status', grantStatus);
-        if (applicationType) params.set('applicationType', applicationType);
-        if (grantorType) params.set('grantorType', grantorType);
-        const qs = params.toString();
-        apiUrl = qs ? `${baseUrl}?${qs}` : baseUrl;
-      } else if (route === 'donations') {
-        const params = new URLSearchParams();
-        if (donStart) params.set('startDate', donStart);
-        if (donEnd) params.set('endDate', donEnd);
-        if (donorType) params.set('donorType', donorType);
-        if (donorStatus) params.set('donorStatus', donorStatus);
-        if (commPref) params.set('commPref', commPref);
-        if (donFund) params.set('fund', donFund);
-        if (minAmount) params.set('minAmount', minAmount);
-        if (maxAmount) params.set('maxAmount', maxAmount);
-        if (paymentMethod) params.set('paymentMethod', paymentMethod);
-        if (campaign) params.set('campaign', campaign);
-        if (ackSent) params.set('acknowledgementSent', ackSent);
-        if (recurringFrequency) params.set('recurringFrequency', recurringFrequency);
-        const qs = params.toString();
-        apiUrl = qs ? `${baseUrl}?${qs}` : baseUrl;
-      }
-      const response = await fetch(apiUrl);
-
-      if (!response.ok) {
-        throw new Error(`The server failed to generate the file. Status: ${response.status}`);
-      }
-
-      const blob = await response.blob();
-
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      // keep the filename friendly: use 'donors' in the filename when dataType is donors
-      const filenameKey = dataType === 'donors' ? 'donors' : dataType;
-      a.download = `${filenameKey}_export_${new Date().toLocaleDateString().replace(/\//g, '-')}.xlsx`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-
-      setStatusMessage('Export completed successfully!');
-
-    } catch (error: any) {
-      setStatusMessage(`Error: ${error.message}`);
-      console.error(error);
-    } finally {
-      setIsExporting(null);
-    }
+    setStatusMessage('Disabled in demo mode. Exports are not available.');
+    setTimeout(() => setIsExporting(null), 800);
   };
 
   // svg icon: downloading
@@ -319,4 +254,3 @@ export default function Export() {
     </div>
   );
 }
-

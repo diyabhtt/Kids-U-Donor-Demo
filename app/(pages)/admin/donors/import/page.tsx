@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef } from 'react';
-import convertExcelToCSV from '@/app/components/convertExcelToCSV';
 
 export default function Import() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -29,49 +28,8 @@ export default function Import() {
     }
 
     setIsUploading(true);
-    setStatusMessage('Uploading Excel file...');
-
-    try {
-      // Convert Excel -> CSV in the browser, then send CSV as 'csv' field
-      const csvText = await convertExcelToCSV(selectedFile);
-      const blob = new Blob([csvText], { type: 'text/csv' });
-      const csvFileName = selectedFile.name.replace(/\.(xlsx|xls)$/i, '.csv');
-
-      const formData = new FormData();
-      // backend import route expects 'csv' field
-      formData.append('csv', new File([blob], csvFileName, { type: 'text/csv' }));
-
-      const apiUrl = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'}/admin/donations/import`;
-
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      //error handling
-      if (!response.ok) {
-        let errorMessage = `Server error: ${response.status}`;
-        try {
-          // JSON error response
-          const errorData = await response.json();
-          errorMessage = errorData?.message || "An unknown error occurred on the server.";
-        } catch (e) {
-          // non-JSON error response
-          errorMessage = await response.text();
-        }
-        throw new Error(errorMessage);
-      }
-
-      await response.json();
-      setStatusMessage(`'${selectedFile.name}' was successfully processed and imported!`);
-      setSelectedFile(null);
-
-    } catch (error: any) {
-      setStatusMessage(`Error: ${error.message}`);
-      console.error(error);
-    } finally {
-      setIsUploading(false);
-    }
+    setStatusMessage('Disabled in demo mode. No files are uploaded.');
+    setTimeout(() => setIsUploading(false), 500);
   };
 
   const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -193,4 +151,3 @@ export default function Import() {
     </div>
   );
 }
-

@@ -1,6 +1,6 @@
-import MainSidebar from "./components/main-sidebar";
 import "./globals.css";
-import TopNavigationBar from "./components/admin-top-navigation-bar";
+import DemoBanner from "./demo/DemoBanner";
+import DemoGuard from "./demo/DemoGuard";
 
 export const metadata = {
   title: "KIDSU Donor Volunteer Database",
@@ -10,8 +10,9 @@ export const metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="flex flex-col items-center">
-        
+      <body className="flex flex-col items-center pt-10">
+        <DemoBanner />
+        <DemoGuard />
 
         <div className="flex w-full">
           

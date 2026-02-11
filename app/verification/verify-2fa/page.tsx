@@ -35,33 +35,8 @@ export default function Verify2FAPage() {
     setError("");
     setLoading(true);
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email,
-          password,
-          twoFactorCode: code,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        if (data.user.role === "ADMIN") {
-          router.push("/admin");
-        } else {
-          router.push("/volunteers");
-        }
-      } else {
-        setError(data.error || "Invalid verification code");
-      }
-    } catch (err) {
-      setError("An error occurred. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    router.push("/volunteers");
+    setLoading(false);
   };
 
   const handleResendCode = async () => {
@@ -69,24 +44,9 @@ export default function Verify2FAPage() {
     setResendSuccess(false);
     setError("");
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-
-      if (data.requires2FA) {
-        setResendSuccess(true);
-        setTimeout(() => setResendSuccess(false), 5000);
-      }
-    } catch (err) {
-      setError("Failed to resend code");
-    } finally {
-      setResending(false);
-    }
+    setResendSuccess(true);
+    setTimeout(() => setResendSuccess(false), 3000);
+    setResending(false);
   };
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {

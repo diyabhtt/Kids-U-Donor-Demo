@@ -10,6 +10,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { demoEvents, demoLocations } from "@/app/demo/demoData";
 
 // Updated EventItem type with optional location
 interface EventItem {
@@ -45,16 +46,24 @@ export default function BasicTable() {
   };
 
   useEffect(() => {
-    fetch("/api/events/get")
-      .then((res) => res.json())
-      .then((data) => {
-        setItems(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err);
-        setLoading(false);
-      });
+    const itemsData: EventItem[] = demoEvents.map((event) => {
+      const location = demoLocations.find((loc) => loc.id === event.locationId) || null;
+      return {
+        id: event.id,
+        name: event.name,
+        schedule: event.schedule,
+        location: location
+          ? {
+              address: location.address,
+              city: location.city,
+              state: location.state,
+              zipCode: location.zipCode,
+            }
+          : null,
+      };
+    });
+    setItems(itemsData);
+    setLoading(false);
   }, []);
 
   if (loading) return <p>Loading...</p>;

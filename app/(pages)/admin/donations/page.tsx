@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import type { Donation } from "@/prisma";
+import { demoDonations, demoDonors } from "@/app/demo/demoData";
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
 
 /*
@@ -19,7 +18,7 @@ const headCells = [
   { id: "paymentMethod", numeric: false, label: "Method" },
   { id: "type", numeric: false, label: "Type" },
 ];
-export const TableHeader = () => {
+const TableHeader = () => {
   return (
     <TableHead>
       <TableRow>
@@ -34,32 +33,30 @@ export const TableHeader = () => {
 };
 
 export default function DonationsList() {
-  const [data, setData] = useState<Donation[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const router = useRouter();
-
   const fetchDonationsData = async () => {
-    try {
-      const response = await fetch("/api/admin/donations", {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-
-      const result = await response.json();
-
-      setData(result.data);
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching:", error);
-      router.push("/not-found");
-    }
+    const mapped = demoDonations.map((donation) => {
+      const donor = demoDonors.find((d) => d.id === donation.donorId);
+      return {
+        id: donation.id,
+        amount: donation.amount,
+        date: donation.date,
+        type: "One-Time",
+        paymentMethod: donation.method,
+        campaign: "General Fund",
+        donor: donor
+          ? {
+              type: donor.type,
+              person: donor.type === "Individual" ? { firstName: donor.name.split(" ")[0], lastName: donor.name.split(" ").slice(1).join(" ") } : null,
+              organization: donor.type === "Organization" ? { name: donor.name } : null,
+            }
+          : null,
+      };
+    });
+    setData(mapped);
+    setIsLoading(false);
   };
   useEffect(() => {
     fetchDonationsData();

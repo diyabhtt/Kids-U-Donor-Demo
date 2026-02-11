@@ -228,7 +228,7 @@ export default function MainSidebar({ items }: MainSidebarProps) {
   }
 
   return (
-    <aside className="fixed top-16 left-0 w-64 h-[calc(100vh-4rem)] bg-white border-r border-gray-200 overflow-y-auto z-40 flex flex-col">
+    <aside className="fixed top-[6.5rem] left-0 w-64 h-[calc(100vh-6.5rem)] bg-white border-r border-gray-200 overflow-y-auto z-40 flex flex-col">
       <nav className="flex-1 p-4 space-y-1">
         {items.map((item, index) => {
           const isActive = pathname === item.reference || (item.reference === "./" && pathname === "/admin");

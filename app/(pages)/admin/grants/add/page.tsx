@@ -23,6 +23,7 @@ import {
   CircularProgress,
   AlertColor
 } from '@mui/material';
+import { demoGrantors } from '@/app/demo/demoData';
 
 interface Grantor {
   id: string;
@@ -108,25 +109,14 @@ const GrantAddPage = () => {
   }, []);
 
   const fetchGrantors = async () => {
-    try {
-      setLoadingGrantors(true);
-      const response = await fetch('/api/admin/grantors/get');
-      const result = await response.json();
-
-      if (response.ok && Array.isArray(result.data)) {
-        setGrantorList(result.data);
-      } else {
-        console.error('Failed to fetch grantors:', result);
-        setGrantorList([]);
-        throw new Error(result.message || 'Failed to fetch grantors');
-      }
-    } catch (error) {
-      console.error('Error fetching grantors:', error);
-      showSnackbar('Error fetching grantors', 'error');
-      setGrantorList([]);
-    } finally {
-      setLoadingGrantors(false);
-    }
+    setLoadingGrantors(true);
+    setGrantorList(
+      demoGrantors.map((grantor) => ({
+        id: grantor.id,
+        organization: { name: grantor.name },
+      }))
+    );
+    setLoadingGrantors(false);
   };
 
   const showSnackbar = (message: string, severity: AlertColor) => {
@@ -172,39 +162,10 @@ const GrantAddPage = () => {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
-    try {
-      setLoading(true);
-
-      // Prepare the data to match backend expectations
-      const submissionData = {
-        ...formData,
-        amountRequested: Number(formData.amountRequested),
-        amountAwarded: Number(formData.amountAwarded),
-        isMultipleYears: Boolean(formData.isMultipleYears),
-        acknowledgementSent: Boolean(formData.acknowledgementSent),
-        isEligibleForRenewal: Boolean(formData.isEligibleForRenewal)
-      };
-
-      const response = await fetch('/api/admin/grants/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submissionData)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || 'Failed to add grant');
-      }
-
-      showSnackbar('Grant added successfully!', 'success');
-      resetForm();
-    } catch (error) {
-      console.error('Error adding grant:', error);
-      showSnackbar(error instanceof Error ? error.message : 'Failed to add grant', 'error');
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true);
+    showSnackbar('Demo only. Grant is not saved.', 'info');
+    resetForm();
+    setLoading(false);
   };
 
   const handleAddGrantor = async () => {
@@ -213,63 +174,11 @@ const GrantAddPage = () => {
       return;
     }
 
-    try {
-      setLoading(true);
-
-      const nameParts = newGrantor.name.split(' ');
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-
-      const grantorData = {
-        type: "Foundation",
-        websiteLink: newGrantor.link || null,
-        communicationPreference: "Email",
-        recognitionPreference: "",
-        internalRelationshipManager: "",
-        organization: {
-          name: newGrantor.name,
-          emailAddress: newGrantor.email,
-        },
-        representative: {
-          positionTitle: newGrantor.title || "Representative",
-          person: {
-            firstName: firstName,
-            lastName: lastName,
-            emailAddress: newGrantor.email,
-          }
-        },
-        status: true
-      };
-
-      const response = await fetch('/api/admin/grantors/post', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(grantorData)
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        console.error('Server response:', result);
-        throw new Error(result.message || result.error || `Failed to add grantor: ${response.status}`);
-      }
-
-      showSnackbar('Grantor added successfully!', 'success');
-      setGrantorModalOpen(false);
-      setNewGrantor({
-        name: '', title: '', email: '', phone: '', address: '', link: ''
-      });
-
-      await fetchGrantors();
-      if (result.id) {
-        handleChange('grantorId', result.id);
-      }
-    } catch (error) {
-      console.error('Error adding grantor:', error);
-      showSnackbar(error instanceof Error ? error.message : 'Failed to add grantor', 'error');
-    } finally {
-      setLoading(false);
-    }
+    showSnackbar('Demo only. Grantor is not saved.', 'info');
+    setGrantorModalOpen(false);
+    setNewGrantor({
+      name: '', title: '', email: '', phone: '', address: '', link: ''
+    });
   };
 
   const resetForm = () => {

@@ -41,6 +41,7 @@
     "app/(pages)/admin/grants/detail/[id]/page.tsx"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "server"
   ]
 }

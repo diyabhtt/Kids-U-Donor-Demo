@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { demoRegistrations, demoVolunteers } from "@/app/demo/demoData";
 
 interface Volunteer {
   id: string;
@@ -17,23 +18,15 @@ const VolunteersPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchVolunteers = async () => {
-      try {
-        const response = await fetch("/api/admin/volunteer/get");
-        if (response.ok) {
-          const data = await response.json();
-          setVolunteers(data.volunteers);
-        } else {
-          console.error("Failed to fetch volunteers");
-        }
-      } catch (error) {
-        console.error("Error fetching volunteers:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchVolunteers();
+    const volunteersData: Volunteer[] = demoVolunteers.map((volunteer) => ({
+      id: volunteer.id,
+      firstName: volunteer.firstName,
+      lastName: volunteer.lastName,
+      emailAddress: volunteer.email,
+      registration: demoRegistrations.some((reg) => reg.volunteerId === volunteer.id),
+    }));
+    setVolunteers(volunteersData);
+    setLoading(false);
   }, []);
 
   const handleViewDetails = (id: string) => {

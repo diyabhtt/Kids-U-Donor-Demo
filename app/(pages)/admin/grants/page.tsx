@@ -1,6 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import type { Grant } from "@/prisma";
+import React, { useState, useEffect, useCallback } from "react";
+import { demoGrantors, demoGrants } from "@/app/demo/demoData";
 import {
   Box,
   TextField,
@@ -50,7 +50,7 @@ const searchOptions = [
 ];
 
 export default function GrantsPage() {
-  const [grantsData, setGrantsData] = useState<Grant[]>([]);
+  const [grantsData, setGrantsData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -59,19 +59,48 @@ export default function GrantsPage() {
   const [searchValue, setSearchValue] = useState("");
   const [searchCriteria, setSearchCriteria] = useState("");
 
-  const fetchGrantsData = async () => {
-    try {
-      const response = await fetch(`/api/admin/grants/get?page=${page}&rowsPerPage=${rowsPerPage}&searchCriteria=${searchCriteria}&searchValue=${searchValue}`);
-      const result = await response.json();
-      setGrantsData(result.data);
-      setTotalCount(result.count);
-      console.log(result.data);
-      setLoading(false);
-    } catch (error) {
-      console.error("Error fetching grants:", error);
-      setLoading(false);
-    }
-  };
+  const fetchGrantsData = useCallback(async () => {
+    const mapped = demoGrants.map((grant) => {
+      const grantor = demoGrantors.find((g) => g.id === grant.grantorId);
+      return {
+        id: grant.id,
+        name: grant.name,
+        status: grant.status,
+        purpose: "Program Support",
+        startDate: grant.submittedDate,
+        endDate: grant.dueDate,
+        awardNotificationDate: grant.status === "Approved" ? grant.dueDate : null,
+        amountAwarded: grant.status === "Approved" ? grant.amount : 0,
+        amountRequested: grant.amount,
+        proposalDueDate: grant.dueDate,
+        proposalSubmissionDate: grant.submittedDate,
+        representativeGrant: [
+          {
+            representative: {
+              person: { firstName: "Taylor", lastName: "Reed" },
+              grantor: {
+                grantorId: grantor?.id || "g1",
+                organization: { name: grantor?.name || "Grantor" },
+              },
+            },
+          },
+        ],
+      };
+    });
+    const filtered = mapped.filter((grant) => {
+      if (!searchCriteria || !searchValue) return true;
+      const value = searchValue.toLowerCase();
+      if (searchCriteria === "name") return grant.name.toLowerCase().includes(value);
+      if (searchCriteria === "status") return grant.status.toLowerCase().includes(value);
+      if (searchCriteria === "grantor") return grant.representativeGrant?.[0]?.representative?.grantor?.organization?.name?.toLowerCase().includes(value);
+      return true;
+    });
+    setTotalCount(filtered.length);
+    const start = page * rowsPerPage;
+    const end = rowsPerPage === -1 ? filtered.length : start + rowsPerPage;
+    setGrantsData(filtered.slice(start, end));
+    setLoading(false);
+  }, [page, rowsPerPage, searchCriteria, searchValue]);
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
@@ -124,7 +153,7 @@ export default function GrantsPage() {
 
   useEffect(() => {
     fetchGrantsData();
-  }, [page, rowsPerPage, searchValue, searchCriteria]);
+  }, [fetchGrantsData]);
 
   if (loading) {
     return <CircularProgress style={styles.center} />
@@ -223,7 +252,7 @@ export default function GrantsPage() {
     {grant.representativeGrant[0].representative.person.firstName} {grant.representativeGrant[0].representative.person.lastName}
   </TableCell>
 ) : null}
-                  {selectedColumns.includes("name") && <TableCell style={styles.tableCell}><Link href={`/grants/detail/${grant.id}`}>{grant.name}</Link></TableCell>}
+                  {selectedColumns.includes("name") && <TableCell style={styles.tableCell}><Link href={`/admin/grants/detail/${grant.id}`}>{grant.name}</Link></TableCell>}
                   {selectedColumns.includes("status") && <TableCell style={styles.tableCell}>{grant.status}</TableCell>}
                   {selectedColumns.includes("purpose") && <TableCell style={styles.tableCell}>{grant.purpose}</TableCell>}
                   {selectedColumns.includes("startDate") && <TableCell style={styles.tableCell}>{new Date(grant.startDate).toLocaleDateString()}</TableCell>}

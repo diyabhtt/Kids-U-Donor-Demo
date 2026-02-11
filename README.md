@@ -18,6 +18,25 @@
 
 This project is focused on developing a database alongside a web application that will help Kids-U manage donors, both individual and organizations, and volunteers along with related funding (via donations and grants) and events. There will be three types of users: Super Admin, administrators and volunteers.
 
+## Demo (GitHub Pages)
+
+This repository includes a frontend-only demo branch that can be deployed to GitHub Pages. The demo uses static sample data, no backend, and no real authentication.
+
+Build the static demo:
+
+```bash
+npm run build:demo
+```
+
+This produces a `dist/` folder containing the static site.
+
+GitHub Pages settings:
+
+1. Branch: `demo`
+2. Folder: `/dist`
+
+If your repository is not served from the root domain (e.g. `https://username.github.io/repo-name/`), set the GitHub Pages base path in `next.config.js` before building.
+
 **Super Admin**
 - Ability to manage users (role management, edit information, view all user info)
 - All Admin Abilities

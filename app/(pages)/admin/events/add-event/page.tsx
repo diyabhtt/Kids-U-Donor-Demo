@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { demoLocations } from "@/app/demo/demoData";
 
 interface Location {
   id: string;
@@ -44,21 +45,14 @@ export default function AddEvent() {
   });
 
   useEffect(() => {
-    // Fetch locations when component mounts
-    const fetchLocations = async () => {
-      try {
-        const response = await fetch('/api/locations/get');
-        if (!response.ok) {
-          throw new Error('Failed to fetch locations');
-        }
-        const data = await response.json();
-        setLocations(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error fetching locations');
-      }
-    };
-
-    fetchLocations();
+    setLocations(
+      demoLocations.map((loc) => ({
+        ...loc,
+        phoneNumber: "(214) 555-0100",
+        emailAddress: "events@kids-u.org",
+        hours: "9:00 AM - 5:00 PM",
+      }))
+    );
   }, []);
 
   const handleEventChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -80,64 +74,28 @@ export default function AddEvent() {
   const handleLocationSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    try {
-      const response = await fetch("/api/admin/locations/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(locationData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to create location");
-      }
-
-      const data = await response.json();
-      setLocations(prev => [...prev, data]);
-      setEventData(prev => ({
-        ...prev,
-        locationId: data.id
-      }));
-      setShowLocationForm(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create location");
-    } finally {
-      setIsSubmitting(false);
-    }
+    const newId = `demo-${Date.now()}`;
+    setLocations(prev => [
+      ...prev,
+      { ...locationData, id: newId },
+    ]);
+    setEventData(prev => ({
+      ...prev,
+      locationId: newId
+    }));
+    setShowLocationForm(false);
+    setIsSubmitting(false);
   };
 
   const handleEventSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError("");
-    try {
-      const response = await fetch("/api/admin/events/post", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: eventData.name,
-          description: eventData.description,
-          schedule: new Date(eventData.date + "T" + eventData.time).toISOString(),
-          locationId: eventData.locationId
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.details || "Failed to create event");
-      }
-
-      const data = await response.json();
-      router.push("/volunteers/Registration?success=true");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create event. Please try again.");
-      console.error("Event creation error:", err);
-    } finally {
-      setIsSubmitting(false);
-    }
+    setTimeout(() => {
+      setError("Demo only. Event was not saved.");
+      router.push("/volunteers/registration?success=true");
+    }, 600);
+    setIsSubmitting(false);
   };
 
   return (

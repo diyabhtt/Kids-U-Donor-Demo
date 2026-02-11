@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 import Link from "next/link";
-import type { Donor as PrismaDonor } from "@prisma/client";
-import { useRouter } from "next/navigation";
 import Loading from "@/app/loading";
+import { demoDonations, demoDonors } from "@/app/demo/demoData";
 
 /*
 place holder list
@@ -19,7 +18,7 @@ const headCells = [
   { id: "last", numeric: false, label: "Last Donation" },
   { id: "status", numeric: false, label: "Status" },
 ];
-export const TableHeader = () => {
+const TableHeader = () => {
   return (
     <TableHead>
       <TableRow>
@@ -33,39 +32,31 @@ export const TableHeader = () => {
   );
 };
 
-type DonorWithRelations = PrismaDonor & {
-  person?: { firstName: string; lastName: string; emailAddress: string; phoneNumber: string | null } | null;
-  organization?: { name: string; emailAddress: string | null } | null;
-  donation?: Array<{ amount: number; date: string }>;
-};
-
 export default function DonorsList() {
-  const [data, setData] = useState<DonorWithRelations[]>([]);
+  const [data, setData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const router = useRouter();
-
   const fetchDonorData = async () => {
-    try {
-      const response = await fetch("/api/admin/donors", {
-        method: "GET",
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-
-      const result = await response.json();
-
-      setData(result.data);
-
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Error fetching:", error);
-      router.push("/not-found");
-    }
+    const mapped = demoDonors.map((donor) => {
+      const donations = demoDonations.filter((donation) => donation.donorId === donor.id);
+      return {
+        id: donor.id,
+        type: donor.type,
+        status: donor.status,
+        person: donor.type === "Individual"
+          ? {
+              firstName: donor.name.split(" ")[0],
+              lastName: donor.name.split(" ").slice(1).join(" "),
+              emailAddress: donor.email,
+              phoneNumber: "(214) 555-0000",
+            }
+          : null,
+        organization: donor.type === "Organization" ? { name: donor.name, emailAddress: donor.email } : null,
+        donation: donations.map((donation) => ({ amount: donation.amount, date: donation.date })),
+      };
+    });
+    setData(mapped);
+    setIsLoading(false);
   };
   useEffect(() => {
     fetchDonorData();
@@ -86,7 +77,7 @@ export default function DonorsList() {
                   : donor.organization?.name || "—";
                 const email = donor.person?.emailAddress || donor.organization?.emailAddress || "";
                 const phone = donor.person?.phoneNumber || "";
-                const total = (donor.donation || []).reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+                const total = (donor.donation || []).reduce((sum: number, d: any) => sum + (Number(d.amount) || 0), 0);
                 const lastDateIso = donor.donation && donor.donation[0]?.date;
                 const last = lastDateIso ? new Date(lastDateIso).toLocaleDateString() : "";
 

@@ -42,52 +42,15 @@ export const DetailFooter = ({ id, name, href, apiUrl, handleSubmit, isDirty, er
       alert("Cannot save when fields are unchanged or there are validation errors.");
       return;
     }
-    try {
-      setIsButtonDisabled(true);
-
-      const requestBody = JSON.stringify({ data });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${apiUrl}/${id}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-      alert("Successfully updated data.");
-    } catch (error) {
-      alert(error);
-      console.error(error);
-    }
+    setIsButtonDisabled(true);
+    alert("Demo only. Changes are not saved.");
   };
 
   const handleDelete = async () => {
     const remove = confirm(`Are you sure you would like to delete this ${name}?\nThis cannot be undone.`);
 
     if (remove) {
-      try {
-        setIsButtonDisabled(true);
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${apiUrl}/${id}`, {
-          method: "DELETE",
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          const message = errorData?.message || "Something went wrong";
-          throw new Error(message);
-        }
-        alert(`Successfully deleted ${name} data`);
-        router.push(href);
-      } catch (error) {
-        alert(error);
-        console.error(error);
-      }
+      alert("Delete is disabled in demo mode.");
     }
   };
 

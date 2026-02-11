@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from '/app/logo.png';
+import { demoEvents, demoGalleryImages, demoVolunteers, demoVolunteerHours, demoLocations } from "@/app/demo/demoData";
 
 
 export default function VolunteerDashboard() {
@@ -13,31 +14,33 @@ export default function VolunteerDashboard() {
 
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/volunteer/events/upcoming').then(res => res.json()),
-      fetch('/api/volunteer/hours').then(res => res.json()),
-      fetch('/api/auth/me').then(res => res.json()),
-      fetch('/api/gallery/images').then(res => res.json()).catch(() => ({ images: [] })),
-    ]).then(([events, hours, userData, gallery]) => {
-      setUpcomingEvents(events);
-      setTotalHours(hours.total || 0);
-      
-      if (userData.success) {
-        setUserName(userData.user.firstName);
-      }
-      
-      if (events.length > 0) {
-        const nextEvent = new Date(events[0].date);
-        const today = new Date();
-        const diffTime = nextEvent.getTime() - today.getTime();
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        setNextEventDays(diffDays);
-      }
+    const volunteer = demoVolunteers[0];
+    const volunteerHours = demoVolunteerHours
+      .filter((hour) => hour.volunteerId === volunteer.id)
+      .reduce((sum, hour) => sum + hour.hours, 0);
 
-      if (gallery.images) {
-        setGalleryImages(gallery.images);
-      }
-    }).catch(err => console.error('Failed to fetch dashboard data:', err));
+    const enrichedEvents = demoEvents.map((event) => {
+      const location = demoLocations.find((loc) => loc.id === event.locationId);
+      return {
+        ...event,
+        date: event.schedule,
+        location: location ? `${location.name}, ${location.city}` : "TBD",
+      };
+    });
+
+    setUpcomingEvents(enrichedEvents);
+    setTotalHours(volunteerHours);
+    setUserName(volunteer.firstName);
+
+    if (enrichedEvents.length > 0) {
+      const nextEvent = new Date(enrichedEvents[0].date);
+      const today = new Date();
+      const diffTime = nextEvent.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setNextEventDays(diffDays);
+    }
+
+    setGalleryImages(demoGalleryImages);
   }, []);
 
 
@@ -163,7 +166,7 @@ export default function VolunteerDashboard() {
                 upcomingEvents.map((event, idx) => (
                   <div 
                     key={idx} 
-                    className="group bg-gradient-to-r from-slate-50 to-white rounded-xl p-5 border-2 border-gray-100 hover:border-[#4a6fa5] hover:shadow-md transition-all cursor-pointer"
+                    className="group bg-gradient-to-r from-slate-50 to-white rounded-xl p-5 border-2 border-gray-100 hover:border-[#4a6fa5] hover:shadow-md transition-all cursor-default"
                   >
                     <div className="flex items-center gap-5">
                       {/* Date Badge */}
@@ -178,7 +181,7 @@ export default function VolunteerDashboard() {
                       
                       {/* Event Details */}
                       <div className="flex-1 min-w-0">
-                        <h4 className="font-bold text-gray-900 mb-2 text-lg group-hover:text-[#2f4b7c] transition-colors">
+                        <h4 className="font-bold text-gray-900 mb-2 text-lg">
                           {event.name}
                         </h4>
                         <div className="space-y-1.5">

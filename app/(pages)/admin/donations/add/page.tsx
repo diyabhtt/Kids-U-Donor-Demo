@@ -96,7 +96,7 @@ export default function AddDonation() {
       organization: { name: "", emailAddress: "" },
       address: { addressLine1: "", addressLine2: "", city: "", state: "", zipCode: "", type: "" },
     });
-  }, [donorMode]);
+  }, [donorMode, reset]);
 
   return (
     <Box sx={styles.container} component="form">

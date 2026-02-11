@@ -36,84 +36,15 @@ export const AddFooter = ({ donorMode, email, handleSubmit, isDirty, errors }: F
   }, [isButtonDisabled]);
 
   const addAnonymousDonor = async (data: DonationState) => {
-    try {
-      const requestBody = JSON.stringify({ data });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/donations/anonymous`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-      alert("Successfully added data.");
-      location.reload();
-    } catch (error) {
-      alert("Error adding data");
-      console.error(error);
-    }
+    alert("Demo only. Donation was not saved.");
   };
 
   const addNewDonor = async (data: AddDonationDonorFormProps) => {
-    try {
-      const requestBody = JSON.stringify({ data });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/donations/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-      alert("Successfully added data.");
-      location.reload();
-    } catch (error) {
-      alert("Error adding data");
-      console.error(error);
-    }
+    alert("Demo only. Donation was not saved.");
   };
 
   const addExistingDonor = async (data: DonationState) => {
-    try {
-      const requestBody = JSON.stringify({
-        data: {
-          ...data,
-          donorEmail: email,
-        },
-      });
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/donations/existing`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: requestBody,
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        const message = errorData?.message || "Something went wrong";
-        throw new Error(message);
-      }
-
-      alert("Successfully added data.");
-      location.reload();
-    } catch (error) {
-      alert(error);
-      console.error(error);
-    }
+    alert("Demo only. Donation was not saved.");
   };
 
   const handleAdd = async (data: AddDonationDonorFormProps) => {

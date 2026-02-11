@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import RegistrationQuestions from "./registration_form/RegistrationQuestions";
 import { useEffect, useState } from "react";
 import { Event } from "@/app/types/event";
+import { demoEvents, demoLocations } from "@/app/demo/demoData";
 
 export default function EventRegPage() {
   const searchParams = useSearchParams();
@@ -14,30 +15,38 @@ export default function EventRegPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEvent = async () => {
-      if (!eventID) {
-        setError("No event ID provided");
-        setIsLoading(false);
-        return;
-      }
+    if (!eventID) {
+      setError("No event ID provided");
+      setIsLoading(false);
+      return;
+    }
 
-      try {
-        const response = await fetch(`/api/admin/events/${eventID}/get`);
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch event");
-        }
-        const data = await response.json();
-        setEvent(data);
-      } catch (error) {
-        console.error("Error fetching event:", error);
-        setError(error instanceof Error ? error.message : "Failed to fetch event");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    const eventData = demoEvents.find((evt) => evt.id === eventID);
+    if (!eventData) {
+      setError("Event not found");
+      setIsLoading(false);
+      return;
+    }
 
-    fetchEvent();
+    const location = demoLocations.find((loc) => loc.id === eventData.locationId) || null;
+    setEvent({
+      id: eventData.id,
+      name: eventData.name,
+      schedule: new Date(eventData.schedule),
+      description: eventData.description,
+      locationId: eventData.locationId,
+      location: location
+        ? {
+            id: location.id,
+            name: location.name,
+            address: location.address,
+            city: location.city,
+            state: location.state,
+            zipCode: location.zipCode,
+          }
+        : null,
+    } as Event);
+    setIsLoading(false);
   }, [eventID]);
 
   if (isLoading) return <div className="p-5">Loading...</div>;
@@ -83,7 +92,7 @@ export default function EventRegPage() {
         <div className="border-t pt-6">
           <h2 className="text-xl font-semibold mb-4">Registration Form</h2>
           <RegistrationQuestions 
-            eventId={eventID}
+            eventId={eventID as string}
             volunteerId={VOLUNTEER_ID}
           />
         </div>

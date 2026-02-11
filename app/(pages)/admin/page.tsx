@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from '/app/logo.png';
+import { demoDonations, demoGrants, demoVolunteerHours, demoVolunteers } from "@/app/demo/demoData";
 
 
 export default function AdminDashboard() {
@@ -12,59 +13,37 @@ export default function AdminDashboard() {
   const [averageDonation, setAverageDonation] = useState<number | null>(null);
   const [pendingGrants, setPendingGrants] = useState<number | null>(null);
   const [tasks, setTasks] = useState<any[]>([]);
-  const [newTask, setNewTask] = useState("");
 
 
   useEffect(() => {
-    Promise.all([
-      fetch('/api/admin/dashboard/box1').then(res => res.json()),
-      fetch('/api/admin/dashboard/box2').then(res => res.json()),
-      fetch('/api/admin/dashboard/box7/hours').then(res => res.json()),
-      fetch('/api/admin/dashboard/box7/donation').then(res => res.json()),
-      fetch('/api/admin/dashboard/box7/grants').then(res => res.json()),
-      fetch('/api/admin/dashboard/box6').then(res => res.json()),
-    ]).then(([volunteers, donors, hours, donation, grants, tasksData]) => {
-      setTotalVolunteers(volunteers.total);
-      setTotalDonors(donors.total);
-      setVolunteerHours(hours.total);
-      setAverageDonation(donation.average);
-      setPendingGrants(grants.total);
-      setTasks(tasksData);
-    }).catch(err => console.error('Failed to fetch dashboard data:', err));
+    const totalVolunteerCount = demoVolunteers.length;
+    const totalDonorCount = new Set(demoDonations.map((d) => d.donorId)).size;
+    const hoursTotal = demoVolunteerHours.reduce((sum, h) => sum + h.hours, 0);
+    const average = demoDonations.length
+      ? demoDonations.reduce((sum, d) => sum + d.amount, 0) / demoDonations.length
+      : 0;
+    const pending = demoGrants.filter((g) => g.status === "Pending").length;
+
+    setTotalVolunteers(totalVolunteerCount);
+    setTotalDonors(totalDonorCount);
+    setVolunteerHours(hoursTotal);
+    setAverageDonation(average);
+    setPendingGrants(pending);
+    setTotalGrants(demoGrants.length);
+    setTasks([]);
   }, []);
-
-
-  const handleAddTask = async () => {
-    if (newTask.trim()) {
-      const res = await fetch('/api/admin/dashboard/box6', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title: newTask, completed: false })
-      });
-      const createdTask = await res.json();
-      setTasks([...tasks, createdTask]);
-      setNewTask("");
-    }
-  };
 
 
   const handleToggle = async (id: number) => {
     const task = tasks.find(t => t.id === id);
     if (!task) return;
-    
-    const res = await fetch(`/api/admin/dashboard/box6/${id}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: task.title, completed: !task.completed })
-    });
-    const updatedTask = await res.json();
+    const updatedTask = { ...task, completed: !task.completed };
     setTasks(tasks.map(t => t.id === id ? updatedTask : t));
   };
 
 
   const handleDelete = async (id: number) => {
-    await fetch(`/api/admin/dashboard/box6/${id}`, { method: "DELETE" });
-    setTasks(tasks.filter(task => task.id !== id));
+    // No-op in demo
   };
 
 
@@ -199,22 +178,6 @@ export default function AdminDashboard() {
         {/* Tasks */}
         <div className="bg-white rounded-2xl p-6 shadow-sm row-span-2 flex flex-col">
           <h3 className="text-base font-semibold text-gray-900 mb-4">Tasks</h3>
-          <div className="flex gap-2 mb-4">
-            <input
-              type="text"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleAddTask()}
-              placeholder="Add a task"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-            />
-            <button
-              onClick={handleAddTask}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-            >
-              Add
-            </button>
-          </div>
           
           <div className="flex-1 space-y-2 overflow-y-auto">
             {tasks.length === 0 ? (
@@ -233,7 +196,8 @@ export default function AdminDashboard() {
                   </span>
                   <button
                     onClick={() => handleDelete(task.id)}
-                    className="text-gray-300 hover:text-red-500 text-xl opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Disabled in demo mode"
+                    className="text-gray-300 text-xl opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     ×
                   </button>

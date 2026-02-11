@@ -21,33 +21,9 @@ export default function VerifyEmailPage() {
       return;
     }
 
-    const verifyEmail = async () => {
-      try {
-        const response = await fetch("/api/auth/emailverify", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ token }),
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          setStatus("success");
-          setMessage(data.message || "Your email has been successfully verified!");
-          setTimeout(() => router.push("/"), 3000);
-        } else {
-          setStatus("error");
-          setMessage(data.error || "Verification failed. The link may be invalid or expired.");
-        }
-      } catch (error) {
-        setStatus("error");
-        setMessage("An error occurred during verification. Please try again.");
-      }
-    };
-
-    verifyEmail();
+    setStatus("success");
+    setMessage("Demo mode: email verification is simulated.");
+    setTimeout(() => router.push("/"), 1500);
   }, [searchParams, router]);
 
   return (

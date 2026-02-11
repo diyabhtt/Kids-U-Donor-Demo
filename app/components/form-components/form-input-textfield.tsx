@@ -91,20 +91,18 @@ export const FormInputTextfield = ({
             multiline={multiline}
             rows={rows}
             error={!!error}
-            helperText={error ? error.message : null}
-            onChange={onChangeHandler}
-            value={value}
-            slotProps={{
-              input: {
-                startAdornment:
-                  type === "currency" ? (
-                    <InputAdornment position="start">$</InputAdornment>
-                  ) : null,
-                readOnly: readOnly,
-              },
-              htmlInput: {
-                ...(maxLength ? { maxLength: maxLength } : {}),
-              },
+          helperText={error ? error.message : null}
+          onChange={onChangeHandler}
+          value={value}
+            InputProps={{
+              startAdornment:
+                type === "currency" ? (
+                  <InputAdornment position="start">$</InputAdornment>
+                ) : null,
+              readOnly: readOnly,
+            }}
+            inputProps={{
+              ...(maxLength ? { maxLength: maxLength } : {}),
             }}
           />
         );
