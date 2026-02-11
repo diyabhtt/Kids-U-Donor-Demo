@@ -3,9 +3,11 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import logo from '/app/logo.png';
 import { demoEvents, demoGalleryImages, demoVolunteers, demoVolunteerHours, demoLocations } from "@/app/demo/demoData";
+import { useRouter } from "next/navigation";
 
 
 export default function VolunteerDashboard() {
+  const router = useRouter();
   const [upcomingEvents, setUpcomingEvents] = useState<any[]>([]);
   const [totalHours, setTotalHours] = useState<number>(0);
   const [nextEventDays, setNextEventDays] = useState<number | null>(null);
@@ -120,7 +122,7 @@ export default function VolunteerDashboard() {
             <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wide">Quick Actions</h3>
             <div className="space-y-3">
               <button 
-                onClick={() => window.location.href = '/volunteers/registration'}
+                onClick={() => router.push('/volunteers/registration')}
                 className="w-full flex items-center gap-3 p-4 bg-gradient-to-r from-[#2f4b7c] to-[#4a6fa5] text-white rounded-xl hover:shadow-lg hover:scale-[1.02] transition-all"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +133,7 @@ export default function VolunteerDashboard() {
 
 
               <button 
-                onClick={() => window.location.href = '/volunteers/check_in_out'}
+                onClick={() => router.push('/volunteers/check_in_out')}
                 className="w-full flex items-center gap-3 p-4 bg-white border-2 border-[#2f4b7c] text-[#2f4b7c] rounded-xl hover:bg-[#2f4b7c] hover:text-white hover:scale-[1.02] transition-all"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -223,7 +225,7 @@ export default function VolunteerDashboard() {
                     Check back soon for exciting volunteer opportunities. Events are posted regularly and we&apos;d love to see you there!
                   </p>
                   <button 
-                    onClick={() => window.location.href = '/volunteers/registration'}
+                    onClick={() => router.push('/volunteers/registration')}
                     className="px-8 py-3 bg-gradient-to-r from-[#2f4b7c] to-[#4a6fa5] text-white rounded-xl hover:shadow-lg hover:scale-105 transition-all font-semibold"
                   >
                     Browse All Events
@@ -353,7 +355,7 @@ export default function VolunteerDashboard() {
           {/* My Profile Button */}
           <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
             <button 
-              onClick={() => window.location.href = '/accountSetting'}
+              onClick={() => router.push('/accountSetting')}
               className="w-full bg-white hover:bg-gray-50 border-2 border-[#2f4b7c] text-[#2f4b7c] rounded-xl p-4 transition-all hover:shadow-lg hover:scale-[1.02] flex items-center justify-center gap-3 mb-3"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

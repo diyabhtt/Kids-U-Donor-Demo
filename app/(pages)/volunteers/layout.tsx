@@ -9,10 +9,10 @@ export default function VolunteerLayout({ children }: { children: React.ReactNod
       <div className="flex">
         <MainSidebar
           items={[
-            { name: "Dashboard", reference: "/volunteers" },
-            { name: "Register For Event", reference: "/volunteers/registration" },
-            { name: "Check-In / Out", reference: "/volunteers/check_in_out" },
-            { name: "Apply", reference: "/volunteers/apply" },
+            { name: "Dashboard", reference: "/volunteers/" },
+            { name: "Register For Event", reference: "/volunteers/registration/" },
+            { name: "Check-In / Out", reference: "/volunteers/check_in_out/" },
+            { name: "Apply", reference: "/volunteers/apply/" },
           ]}
         />
           <main className="ml-64 mt-16 min-h-screen flex-1 pt-10">

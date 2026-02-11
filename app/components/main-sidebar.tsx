@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type SubmenuItem = {
   name: string;
@@ -204,6 +204,7 @@ const iconMap: { [key: string]: React.ReactNode } = {
 
 export default function MainSidebar({ items }: MainSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [openDropdowns, setOpenDropdowns] = useState<Set<string>>(new Set());
 
   const toggleDropdown = (itemName: string) => {
@@ -241,7 +242,7 @@ export default function MainSidebar({ items }: MainSidebarProps) {
               <div className={`rounded-lg overflow-hidden ${shouldHighlight ? "bg-blue-50" : ""
                 }`}>
                 <button
-                  onClick={() => item.hasSubmenu ? toggleDropdown(item.name) : window.location.href = item.reference}
+                  onClick={() => item.hasSubmenu ? toggleDropdown(item.name) : router.push(item.reference)}
                   className={`w-full flex items-center gap-3 px-4 py-3 transition-all duration-200 ${shouldHighlight
                     ? "text-blue-600 font-medium"
                     : "text-gray-700 hover:bg-gray-50"

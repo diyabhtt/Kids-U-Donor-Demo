@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import logo from "./logo.png";
 import { setDemoRole, getDemoRole } from "./demo/demoAuth";
@@ -146,9 +147,9 @@ export default function LoginPage(): JSX.Element {
                 required
               />
               <div className="text-right mt-3">
-                <a href="/forgot-password" className="text-[#4a6fa5] text-sm font-medium hover:text-[#2f4b7c] transition-colors">
+                <Link href="/forgot-password" className="text-[#4a6fa5] text-sm font-medium hover:text-[#2f4b7c] transition-colors">
                   Forgot Password?
-                </a>
+                </Link>
               </div>
             </div>
 

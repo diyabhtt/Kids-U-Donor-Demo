@@ -103,7 +103,7 @@ export default function AddEvent() {
       <div className="mb-5 text-sm text-gray-600 flex items-center space-x-2">
         <Link href="/" className="hover:text-blue-500 cursor-pointer">Home</Link>
         <span className="text-gray-400">/</span>
-        <Link href="/volunteers/Registration" className="hover:text-blue-500">Registration</Link>
+        <Link href="/volunteers/registration" className="hover:text-blue-500">Registration</Link>
         <span className="text-gray-400">/</span>
         <span className="text-gray-700">Add Event</span>
       </div>
